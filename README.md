@@ -27,9 +27,9 @@ Time(10) - Time(5); // 05:00:00
 Time(10, 0, 0, true) + Time(5); // -10:00:00 + 05:00:00 = -05:00:00
 ```
 
-Conversion to more familiar formats
+Conversion to and from more familiar formats
 ```dart
-print(Time.fromString("00:30:00")); // 00:30:00
+print(Time.fromString("00:30:00").toString()); // 00:30:00
 print(Time(0, 1, 5).asMilliseconds); // 65000
 ```
 

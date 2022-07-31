@@ -8,6 +8,7 @@ String _doubleAsTime(double n) {
 }
 
 /// Limiter for use in fields with a maximum value
+///
 /// As an example, if you plug in an [n] of 25 and a [max] of 24, you will get
 /// an [extra] of 1, 1 day, and a [remaining] of 1, 1 hour
 class Limit {
@@ -28,8 +29,10 @@ class Limit {
   }
 }
 
-/// Represents a Time in hours, minutes and seconds. Automatically wraps values, so both
-/// Time(0, 60, 60) and Time(24, 60, 60) will return 01:01:00.
+/// Represents a Time in hours, minutes and seconds.
+///
+/// Automatically wraps values, so both
+/// `Time(0, 60, 60)` and `Time(24, 60, 60)` will return `01:01:00`.
 ///
 /// This class supports addition, subtraction and conversion to and from strings and milliseconds,
 /// aswell as addition with days.
@@ -50,29 +53,45 @@ class Time {
 
   /// Return total time in milliseconds.
   /// 60 seconds would be 60,000 milliseconds.
-  /// For milliseconds since epoch, you are looking for a `DateTime` object
+  /// For milliseconds since epoch, you need a `DateTime` object
   int get asMilliseconds =>
       (_s * 1000).round() + (_m * 60 * 1000) + (_h * 60 * 60 * 1000);
 
   Time get asNegative => Time(_h, _m, _s, true);
 
   /// Returns the sum of 2 times, with the number of days passed ommited.
-  Time operator +(Time other) {
-    if (other.isNegative) {
-      return this - other;
+  Time operator +(Time o) {
+    if (o.isNegative) {
+      return this - o;
     } else if (isNegative) {
-      return other - this;
+      return o - this;
     }
-    return Time(_h + other._h, _m + other._m, _s + other._s, isNegative);
+    return Time(_h + o._h, _m + o._m, _s + o._s, isNegative);
   }
 
   /// Returns the subtraction of 2 times.
-  Time operator -(Time other) {
+  Time operator -(Time o) {
     int thisMs = isNegative ? -asMilliseconds : asMilliseconds;
-    final ms = thisMs - other.asMilliseconds;
-    final t = Time.fromMilliseconds(ms.abs())!;
+    final ms = thisMs - o.asMilliseconds;
+    final t = Time.fromMilliseconds(ms.abs());
     if (ms < 0) return t.asNegative;
     return t;
+  }
+
+  @override
+  int get hashCode => (_h*1 + _m*10 + _s*100).hashCode;
+
+  /// Returns whether or not 2 times are equal.
+  @override
+  bool operator ==(Object? o) {
+    if (o.runtimeType == Time) {
+      o = o as Time;
+      return (_h == o._h &&
+          _m == o._m &&
+          _s == o._s &&
+          isNegative == o.isNegative);
+    }
+    return false;
   }
 
   /// Converts a string in the format HH:MM:SS to a [Time] object. If parsing fails,
@@ -91,7 +110,7 @@ class Time {
 
   /// Converts an amount of milliseconds to a [Time] object, with the number of days
   /// ommited
-  static Time? fromMilliseconds(int ms) {
+  static Time fromMilliseconds(int ms) {
     double h = _msToHours(ms).abs();
     int justH = h.truncate();
     double m = (h - justH) * 60;
